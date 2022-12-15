@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 'main'
-      - 'feature/DTE-477-Setup_ECR_image_build_repo_for_tre-fn-forward'
   # Enable manual run; must be in main branch to be available
   workflow_dispatch:
 permissions:
