@@ -1,0 +1,68 @@
+# Gets next git version tag, builds and deploys Docker image to ECR; if
+# successful, tags git with new version.
+on:
+  push:
+    branches:
+      - 'main'
+      - 'feature/DTE-477-Setup_ECR_image_build_repo_for_tre-fn-forward'
+  # Enable manual run; must be in main branch to be available
+  workflow_dispatch:
+permissions:
+  id-token: write  # required by aws-actions/configure-aws-credentials
+  contents: write  # to push new git tag
+jobs:
+  build-deploy-and-tag-ecr-image:
+    runs-on: ubuntu-latest
+    env:
+      python_version: '3.9'
+      docker_image_name: 'tre-forward'
+      build_dir: 'tre-forward'
+      ecr_registry_path: tre-v2
+    steps:
+      - name: Diagnostic info
+        run: |
+          printf 'github.event.repository.name=%s\n' "${{ github.event.repository.name }}"
+          printf 'github.api_url=%s\n' "${{ github.api_url }}"
+          printf 'env.python_version=%s\n' "${{ env.python_version }}"
+      - name: Checkout current
+        uses: actions/checkout@v3
+      - name: Set up Python ${{ env.python_version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.python_version }}
+      - name: Run tests
+        run: |
+          python --version
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          # cd ${{ env.build_dir }}
+          # python -m unittest discover ./tests -p 'test_*.py'
+      - name: Get the version to use to tag this build
+        id: build-tag
+        uses: nationalarchives/tre-github-actions/.github/actions/get-next-version@0.0.1
+        with:
+          repo-name: ${{ github.event.repository.name }}
+      - name: Diagnostic info
+        run: |
+          printf 'steps.build-tag.outputs.next-version=%s\n' "${{ steps.build-tag.outputs.next-version }}"
+      - name: AWS credential setup
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_OPEN_ID_CONNECT_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-session-name: role-session-name-${{ github.actor }}-${{ github.triggering_actor }}
+      - name: Build and push Docker image to AWS ECR
+        uses: nationalarchives/tre-github-actions/.github/actions/docker-build-and-deploy-to-ecr@0.0.2
+        with:
+          dockerfile-dir: ${{ env.build_dir }}
+          image-name: ${{ env.docker_image_name }}
+          image-version: ${{ steps.build-tag.outputs.next-version }}
+          ecr-registry-path: ${{ env.ecr_registry_path }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-codeartifact-repository-name: ${{ secrets.AWS_CODEARTIFACT_REPOSITORY_NAME }}
+          aws-codeartifact-repository-domain: ${{ secrets.AWS_CODEARTIFACT_REPOSITORY_DOMAIN }}
+          aws-codeartifact-repository-account: ${{ secrets.AWS_CODEARTIFACT_REPOSITORY_ACCOUNT }}
+      - name: Add Git tag for this build
+        run: |
+          git tag ${{ steps.build-tag.outputs.next-version }}
+          git push origin ${{ steps.build-tag.outputs.next-version }}
