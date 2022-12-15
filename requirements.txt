@@ -1,4 +1,3 @@
 boto3~=1.21.6
 jsonschema~=4.15.0
 wheel~=0.38.4
-tre-event-lib~=0.0.7
