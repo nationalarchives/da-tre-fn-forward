@@ -33,6 +33,7 @@ jobs:
         run: |
           python --version
           python -m pip install --upgrade pip
+          aws codeartifact login --tool pip --repository ${{ secrets.AWS_CODEARTIFACT_REPOSITORY_NAME }} --domain ${{ secrets.AWS_CODEARTIFACT_REPOSITORY_DOMAIN }} --domain-owner ${{ secrets.AWS_CODEARTIFACT_REPOSITORY_ACCOUNT}} --region ${{ secrets.AWS_REGION }}
           pip install -r requirements.txt
           # cd ${{ env.build_dir }}
           # python -m unittest discover ./tests -p 'test_*.py'
