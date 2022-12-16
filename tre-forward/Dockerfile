@@ -1,5 +1,9 @@
 FROM public.ecr.aws/lambda/python:3.8
 
+# Loading Variables from Github Actions environment
+ARG PIP_INDEX_URL
+
+# Install dependancies 
 RUN yum -y update \
     && yum clean all
 
