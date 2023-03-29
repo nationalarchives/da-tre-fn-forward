@@ -59,24 +59,30 @@ def forward_tre_event_to_sns(
     message = json.loads(body[KEY_MESSAGE])
     logger.info('message=%s', message)
 
-    if KEY_MESSAGE_ATTRIBUTES not in body:
-        raise ValueError(f'Missing key {KEY_BODY}.{KEY_MESSAGE_ATTRIBUTES} in event_record')
-    message_attributes = body[KEY_MESSAGE_ATTRIBUTES]
-    logger.info('message_attributes=%s', message_attributes)
+    # if KEY_MESSAGE_ATTRIBUTES not in body:
+    #     raise ValueError(f'Missing key {KEY_BODY}.{KEY_MESSAGE_ATTRIBUTES} in event_record')
+    # message_attributes = body[KEY_MESSAGE_ATTRIBUTES]
+    # logger.info('message_attributes=%s', message_attributes)
     
-    # Create message attributes
-    output_message_attributes_block = {
-        key: {
-            'DataType': value['Type'],
-            'StringValue': value['Value']                
-        } for key, value in message_attributes.items()
-    }
+    # # Create message attributes
+    # output_message_attributes_block = {
+    #     key: {
+    #         'DataType': value['Type'],
+    #         'StringValue': value['Value']
+    #     } for key, value in message_attributes.items()
+    # }
+
+    # # Publish message to tre-out with message attributes
+    # publish_response = sns.publish(
+    #     TopicArn=target_sns_arn,
+    #     Message=json.dumps(message),
+    #     MessageAttributes=output_message_attributes_block
+    # )
 
     # Publish message to tre-out with message attributes
     publish_response = sns.publish(
         TopicArn=target_sns_arn,
-        Message=json.dumps(message),
-        MessageAttributes=output_message_attributes_block
+        Message=json.dumps(message)
     )
 
     logger.info('publish_response=%s', publish_response)
