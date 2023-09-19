@@ -39,13 +39,13 @@ python3 -m venv .venv
 . ./.venv/bin/activate
 
 # Log in to AWS codeartifact
-``aws codeartifact login \
+aws codeartifact login \
   --tool pip \
   --repository "${AWS_CODEARTIFACT_REPOSITORY_NAME}" \
   --domain "${AWS_CODEARTIFACT_REPOSITORY_DOMAIN}" \
   --domain-owner "${AWS_CODEARTIFACT_REPOSITORY_ACCOUNT}" \
   --region "${AWS_CODEARTIFACT_REPOSITORY_REGION}" \
-  --profile "${AWS_PROFILE}"``
+  --profile "${AWS_PROFILE}"
 
 # Install required libraries from AWS codeartifact
 pip install \
