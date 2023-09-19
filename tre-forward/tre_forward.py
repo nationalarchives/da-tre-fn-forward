@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 sns = boto3.client('sns')
-TRE_OUT_TOPIC_ARN = os.environ['TRE_OUT_TOPIC_ARN']
+PUBLISH_TOPIC_ARNS = os.environ['PUBLISH_TOPIC_ARNS']
 
 KEY_RECORDS = 'Records'
 KEY_BODY = 'body'
@@ -95,22 +95,25 @@ def lambda_handler(event, context):
     forward_fail_list = []
     forward_ok_list = []
 
-    for event_record in event[KEY_RECORDS]:
-        try:
-            execution_info = forward_tre_event_to_sns(
-                event_record=event_record,
-                target_sns_arn=TRE_OUT_TOPIC_ARN
-            )
+    topic_arns = json.loads(PUBLISH_TOPIC_ARNS)
 
-            forward_ok_list.append(execution_info)
-        except Exception as e:
-            logging.exception(e, stack_info=True)
-            forward_fail_list.append(
-                {
-                    KEY_EVENT_RECORD: event_record,
-                    KEY_ERROR: str(e)
-                }
-            )
+    for event_record in event[KEY_RECORDS]:
+        for topic_arn in topic_arns:
+            try:
+                execution_info = forward_tre_event_to_sns(
+                    event_record=event_record,
+                    target_sns_arn=TRE_OUT_TOPIC_ARN
+                )
+
+                forward_ok_list.append(execution_info)
+            except Exception as e:
+                logging.exception(e, stack_info=True)
+                forward_fail_list.append(
+                    {
+                        KEY_EVENT_RECORD: event_record,
+                        KEY_ERROR: str(e)
+                    }
+                )
 
     # Raise an error if there were any failed executions
     if len(forward_fail_list) > 0:
