@@ -85,7 +85,7 @@ def lambda_handler(event, context):
     """
     AWS invocation entry point.
     """
-    logger.info('TRE_OUT_TOPIC_ARN=%s', TRE_OUT_TOPIC_ARN)
+    logger.info('PUBLISH_TOPIC_ARNS=%s', PUBLISH_TOPIC_ARNS)
     logger.info('event=%s', event)
 
     if KEY_RECORDS not in event:
@@ -102,7 +102,7 @@ def lambda_handler(event, context):
             try:
                 execution_info = forward_tre_event_to_sns(
                     event_record=event_record,
-                    target_sns_arn=TRE_OUT_TOPIC_ARN
+                    target_sns_arn=topic_arn
                 )
 
                 forward_ok_list.append(execution_info)
