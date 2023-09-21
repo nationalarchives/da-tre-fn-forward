@@ -47,6 +47,7 @@ def forward_tre_event_to_sns(
 
     On success return the publish response object.
     """
+    logger.info('Attempting to publish to SNS arn %s', target_sns_arn)
     # Extract TRE message (i.e. from tre-internal-topic)
     logger.info('event_record=%s', event_record)
 
