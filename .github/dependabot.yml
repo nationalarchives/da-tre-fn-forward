@@ -1,0 +1,10 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/tre-forward"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/tre-forward"
+    schedule:
+      interval: "daily"
