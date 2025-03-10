@@ -4,6 +4,7 @@ updates:
     directory: "/tre-forward"
     schedule:
       interval: "daily"
+    target-branch: "target-branch"  
   - package-ecosystem: "docker"
     directory: "/tre-forward"
     schedule:
